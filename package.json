@@ -1,0 +1,20 @@
+{
+  "name": "node-demo",
+  "version": "1.0.0",
+  "description": "node.js 的入门学习及数据库的操作",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon node/src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ronnieXiaoLH/node-demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ronnieXiaoLH/node-demo/issues"
+  },
+  "homepage": "https://github.com/ronnieXiaoLH/node-demo#readme"
+}
