@@ -4,7 +4,8 @@
   "description": "node.js 的入门学习及数据库的操作",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon node/src/index.js"
+    "server": "nodemon node/src/index.js",
+    "express": "nodemon express/app.js"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/ronnieXiaoLH/node-demo/issues"
   },
-  "homepage": "https://github.com/ronnieXiaoLH/node-demo#readme"
+  "homepage": "https://github.com/ronnieXiaoLH/node-demo#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
