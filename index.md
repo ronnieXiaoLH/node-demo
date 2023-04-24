@@ -17,6 +17,14 @@ npx express-generator
 - params：使用请求头 url 动态传参（http:127.0.0.1:3000/1）
 - body: 使用请求体传参
 
+### express 中间件分类
+
+- 应用程序级别中间件：app.use、app.get 等
+- 路由级别中间件：express.Router().get
+- 错误处理中间件：app.use((err, req, res, next) => {})
+- 内置中间件
+- 第三方中间件
+
 ## mongodb
 
 ### mongodb 的安装
