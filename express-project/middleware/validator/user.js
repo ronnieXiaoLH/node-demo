@@ -71,3 +71,30 @@ exports.login = validate([
     .withMessage('密码长度不能小于6')
     .bail()
 ])
+
+exports.update = validate([
+  body('email')
+    .bail()
+    .custom(async (val) => {
+      const emailValidate = await User.findOne({ email: val })
+      if (emailValidate) {
+        return Promise.reject('邮箱已被注册')
+      }
+    }),
+  body('phone')
+    .bail()
+    .custom(async (val) => {
+      const phoneValidate = await User.findOne({ phone: val })
+      if (phoneValidate) {
+        return Promise.reject('手机号已被注册')
+      }
+    }),
+  body('username')
+    .bail()
+    .custom(async (val) => {
+      const usernameValidate = await User.findOne({ username: val })
+      if (usernameValidate) {
+        return Promise.reject('用户名已被注册')
+      }
+    })
+])

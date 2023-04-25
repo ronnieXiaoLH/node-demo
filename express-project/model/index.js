@@ -21,5 +21,6 @@ main()
 
 module.exports = {
   // 数据库中的集合是带 s 的，即 Users
-  User: mongoose.model('User', require('./user'))
+  User: mongoose.model('User', require('./user')),
+  Video: mongoose.model('Video', require('./video'))
 }
