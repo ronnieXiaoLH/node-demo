@@ -39,7 +39,6 @@ exports.update = async (req, res) => {
 // 用户头像上传
 exports.headimg = async (req, res) => {
   // multer 上传文件时，文件内容在 req.file 上，其他参数在 req.body 上
-  console.log(req.file, req.body)
   const file = req.file
   const arr = file.originalname.split('.')
   const fileType = arr[arr.length - 1]
@@ -55,19 +54,4 @@ exports.headimg = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error })
   }
-  // {
-  //   fieldname: 'avatar',
-  //   originalname: '1.png',
-  //   encoding: '7bit',
-  //   mimetype: 'image/png',
-  //   destination: 'public/',
-  //   filename: '5ef3626b5811a9ebc759749d77e7ade9',
-  //   path: 'public\\5ef3626b5811a9ebc759749d77e7ade9',
-  //   size: 1257
-  // }
-  res.json({})
-}
-
-exports.list = async (req, res) => {
-  res.send('user-list')
 }

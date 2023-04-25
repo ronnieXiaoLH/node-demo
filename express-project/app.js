@@ -15,12 +15,13 @@ app.use('/api/v1', router)
 
 // 404 处理
 app.use((req, res) => {
-  res.status(404).send('404 Not FOund.')
+  res.status(404).send('404 Not Found.')
 })
 
 // error 处理
 // 4 个参数就是错误处理
 app.use((err, req, res, next) => {
+  // console.log(err)
   res.status(500).send('service error')
 })
 

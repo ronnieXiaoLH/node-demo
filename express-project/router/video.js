@@ -5,13 +5,14 @@ const validator = require('../middleware/validator/video')
 
 const router = express.Router()
 
-router.get('/getVod', verifyToken, vodController.getVod)
+router.get('/getVod', verifyToken(), vodController.getVod)
 router.post(
   '/createVideo',
-  verifyToken,
+  verifyToken(),
   validator.createVideo,
   videoController.createVideo
 )
-router.get('/vedioList', verifyToken, videoController.vedioList)
+router.get('/videoList', videoController.videoList)
+router.get('/video/:videoId', verifyToken(false), videoController.video)
 
 module.exports = router

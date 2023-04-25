@@ -13,7 +13,7 @@ exports.createVideo = async (req, res) => {
 }
 
 // 查询视频列表
-exports.vedioList = async (req, res) => {
+exports.videoList = async (req, res) => {
   const { pageNum = 1, pageSize = 3 } = req.body
   try {
     const dbBack = await Video.find({})
@@ -22,9 +22,23 @@ exports.vedioList = async (req, res) => {
       // 按创建时间倒序排序
       .sort({ createAt: -1 })
       // 关联 user
-      .populate('user')
+      .populate('user', '_id, username avatar')
     const total = await Video.countDocuments()
     res.json({ list: dbBack, total, pageNum, pageSize })
+  } catch (error) {
+    res.status(500).json({ error })
+  }
+}
+
+// 查询视频详情
+exports.video = async (req, res) => {
+  try {
+    const { videoId } = req.params
+    const dbBack = await Video.findById(videoId).populate(
+      'user',
+      '_id, username avatar'
+    )
+    res.json(dbBack)
   } catch (error) {
     res.status(500).json({ error })
   }

@@ -10,13 +10,12 @@ const router = express.Router()
 
 router.post('/registers', validator.register, userController.register)
 router.post('/logins', validator.login, userController.login)
-router.put('/', verifyToken, validator.update, userController.update)
+router.put('/', verifyToken(), validator.update, userController.update)
 router.post(
   '/headimg',
-  verifyToken,
+  verifyToken(),
   upload.single('avatar'),
   userController.headimg
 )
-router.get('/lists', verifyToken, userController.list)
 
 module.exports = router
