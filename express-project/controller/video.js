@@ -1,4 +1,4 @@
-const { Video } = require('../model')
+const { Video, VideoComment } = require('../model')
 
 // 创建视频
 exports.createVideo = async (req, res) => {
@@ -42,6 +42,84 @@ exports.video = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error })
   }
+}
+
+// 添加评论
+exports.comment = async (req, res) => {
+  const { videoId } = req.params
+  const userId = req.user._id
+
+  const video = await Video.findOne({
+    _id: videoId
+  })
+  if (!video) {
+    return res.json({
+      error: '视频不存在'
+    })
+  }
+
+  const videoCommentModel = new VideoComment({
+    content: req.body.content,
+    video: videoId,
+    user: userId
+  })
+
+  const comment = await videoCommentModel.save()
+  video.commentCount++
+  video.save()
+
+  res.json({ comment })
+}
+
+// 查询评论列表
+exports.commentList = async (req, res) => {
+  const { videoId } = req.params
+  const { pageNum = 1, pageSize = 3 } = req.body
+  const list = await VideoComment.find({
+    video: videoId
+  })
+    .populate('user', '_id username avatar')
+    .skip((pageNum - 1) * pageSize)
+    .limit(pageSize)
+    .sort({ createAt: -1 })
+
+  const total = await VideoComment.countDocuments({
+    video: videoId
+  })
+  res.json({ list, total, pageNum, pageSize })
+}
+
+// 删除评论
+exports.delete = async (req, res) => {
+  const { videoId, commentId } = req.params
+
+  const video = await Video.findById(videoId)
+  if (!video) {
+    return res.json({
+      error: '视频不存在'
+    })
+  }
+
+  const comment = await VideoComment.findById(commentId)
+  if (!comment) {
+    return res.json({
+      error: '评论不存在'
+    })
+  }
+
+  if (comment.user.equals(req.user._id)) {
+    return res.status(403).json({
+      error: '没有权限删除'
+    })
+  }
+
+  await comment.deleteOne()
+  video.commentCount--
+  await video.save()
+
+  res.json({
+    msg: '删除成功'
+  })
 }
 
 exports.list = async (req, res) => {

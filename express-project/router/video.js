@@ -14,5 +14,12 @@ router.post(
 )
 router.get('/videoList', videoController.videoList)
 router.get('/video/:videoId', verifyToken(false), videoController.video)
+router.post('/comment/:videoId', verifyToken(), videoController.comment)
+router.get('/commentList/:videoId', videoController.commentList)
+router.delete(
+  '/comment/:videoId/:commentId',
+  verifyToken(),
+  videoController.delete
+)
 
 module.exports = router

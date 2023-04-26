@@ -30,6 +30,11 @@ const videoSchema = new mongoose.Schema({
     // 关联用户模型
     ref: 'User'
   },
+  // 评论数量
+  commentCount: {
+    type: Number,
+    default: 0
+  },
   ...baseModel
 })
 
