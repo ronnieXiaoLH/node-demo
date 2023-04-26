@@ -275,3 +275,27 @@ exports.likeList = async (req, res) => {
     pageSize
   })
 }
+
+// 删除视频
+exports.delete = async (req, res) => {
+  const userId = req.user._id
+  const { videoId } = req.params
+
+  const video = await Video.findById(videoId)
+  if (!video) {
+    return res.json({
+      error: '视频不存在'
+    })
+  }
+
+  if (!video.user._id.equals(userId)) {
+    return res.status(403).json({
+      error: '没有权限删除'
+    })
+  }
+
+  await video.deleteOne()
+  res.json({
+    msg: '删除成功'
+  })
+}
