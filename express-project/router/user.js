@@ -19,5 +19,6 @@ router.post(
 )
 router.get('/subscribe/:userId', verifyToken(), userController.subscribe)
 router.get('/unsubscribe/:userId', verifyToken(), userController.unsubscribe)
+router.get('/getUser/:userId', verifyToken(false), userController.getUser)
 
 module.exports = router

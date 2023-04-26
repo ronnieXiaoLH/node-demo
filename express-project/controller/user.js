@@ -1,5 +1,6 @@
 const fs = require('fs')
 const { promisify } = require('util')
+const { pick } = require('lodash')
 const { User, Subscribe } = require('../model')
 const { createToken } = require('../utils/jwt')
 
@@ -125,6 +126,38 @@ exports.unsubscribe = async (req, res) => {
     user.save()
     res.json({
       msg: '取关成功'
+    })
+  }
+}
+
+// 查看用户
+exports.getUser = async (req, res) => {
+  // 当前用户，可以是未登录状态
+  const userId = req.user._id
+  // 查看的用户
+  const channelId = req.params.userId
+
+  let isSubscribe = false
+  if (userId) {
+    const record = await Subscribe.findOne({
+      user: userId,
+      channel: channelId
+    })
+    if (record) {
+      isSubscribe = true
+    }
+
+    const dbBack = await User.findOne({
+      _id: userId
+    })
+    // 无法往 dbBack 中新增 User model 中未声明的字段
+    // dbBack.isSubscribe = isSubscribe
+
+    res.json({
+      ...pick(dbBack, ['_id', 'username', 'avatar']),
+      isSubscribe,
+      cover: null,
+      chanelDes: null
     })
   }
 }
