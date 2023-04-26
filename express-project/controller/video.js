@@ -1,4 +1,4 @@
-const { Video, VideoComment, VideoLike } = require('../model')
+const { Video, VideoComment, VideoLike, Subscribe } = require('../model')
 
 // 创建视频
 exports.createVideo = async (req, res) => {
@@ -38,7 +38,33 @@ exports.video = async (req, res) => {
       'user',
       '_id, username avatar'
     )
-    res.json(dbBack)
+
+    // 登录用户查看时，返回用户是否喜欢、不喜欢和关注的信息
+    let isLike = false,
+      isDislike = false,
+      isSubscribe = false
+    if (req.user) {
+      const userId = req.user._id
+      const videoLike = await VideoLike.findOne({
+        user: userId,
+        video: videoId
+      })
+      if (videoLike?.like === 1) {
+        isLike = true
+      } else if (videoLike?.like === -1) {
+        isDislike = true
+      }
+
+      // 判断当前登录的用户是否关注了视频发布者
+      const subscribe = await Subscribe.findOne({
+        user: userId,
+        channel: dbBack.user._id
+      })
+      if (subscribe) {
+        isSubscribe = true
+      }
+    }
+    res.json({ ...dbBack.toJSON(), isLike, isDislike, isSubscribe })
   } catch (error) {
     res.status(500).json({ error })
   }
