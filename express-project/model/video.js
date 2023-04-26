@@ -35,6 +35,16 @@ const videoSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  // 喜欢的数量
+  likeCount: {
+    type: Number,
+    default: 0
+  },
+  // 不喜欢的数量
+  dislikeCount: {
+    type: Number,
+    default: 0
+  },
   ...baseModel
 })
 

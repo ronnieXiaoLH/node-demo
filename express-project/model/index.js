@@ -24,5 +24,6 @@ module.exports = {
   User: mongoose.model('User', require('./user')),
   Video: mongoose.model('Video', require('./video')),
   Subscribe: mongoose.model('Subscribe', require('./subscribe')),
-  VideoComment: mongoose.model('VideoComment', require('./videoComment'))
+  VideoComment: mongoose.model('VideoComment', require('./videoComment')),
+  VideoLike: mongoose.model('VideoLike', require('./videoLike'))
 }

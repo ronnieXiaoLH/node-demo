@@ -21,5 +21,8 @@ router.delete(
   verifyToken(),
   videoController.delete
 )
+router.post('/like/:videoId', verifyToken(), videoController.like)
+router.post('/dislike/:videoId', verifyToken(), videoController.dislike)
+router.get('/likeList/:videoId', verifyToken(), videoController.likeList)
 
 module.exports = router

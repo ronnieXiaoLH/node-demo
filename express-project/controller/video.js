@@ -1,4 +1,4 @@
-const { Video, VideoComment } = require('../model')
+const { Video, VideoComment, VideoLike } = require('../model')
 
 // 创建视频
 exports.createVideo = async (req, res) => {
@@ -119,5 +119,133 @@ exports.delete = async (req, res) => {
 
   res.json({
     msg: '删除成功'
+  })
+}
+
+// 视频喜欢
+exports.like = async (req, res) => {
+  const { videoId } = req.params
+  const userId = req.user._id
+
+  const video = await Video.findById(videoId)
+  if (!video) {
+    return res.json({
+      error: '视频不存在'
+    })
+  }
+
+  let isLike = true
+  const dbBack = await VideoLike.findOne({
+    user: userId,
+    video: videoId
+  })
+
+  if (!dbBack) {
+    videoLikeModel = new VideoLike({
+      like: 1,
+      user: userId,
+      video: videoId
+    })
+    await videoLikeModel.save()
+  } else {
+    if (dbBack.like === 1) {
+      isLike = false
+      await dbBack.deleteOne()
+    } else {
+      dbBack.like === 1
+      await dbBack.save()
+    }
+  }
+
+  video.likeCount = await VideoLike.countDocuments({
+    video: videoId,
+    like: 1
+  })
+
+  video.dislikeCount = await VideoLike.countDocuments({
+    video: videoId,
+    like: -1
+  })
+
+  await video.save()
+
+  res.json({
+    ...video.toJSON(),
+    isLike
+  })
+}
+
+// 视频不喜欢
+exports.dislike = async (req, res) => {
+  const { videoId } = req.params
+  const userId = req.user._id
+
+  const video = await Video.findById(videoId)
+  if (!video) {
+    return res.json({
+      error: '视频不存在'
+    })
+  }
+
+  let isDislike = true
+  const dbBack = await VideoLike.findOne({
+    user: userId,
+    video: videoId
+  })
+
+  if (!dbBack) {
+    videoLikeModel = new VideoLike({
+      like: -1,
+      user: userId,
+      video: videoId
+    })
+    await videoLikeModel.save()
+  } else {
+    if (dbBack.like === -1) {
+      isDislike = false
+      await dbBack.deleteOne()
+    } else {
+      dbBack.like === -1
+      await dbBack.save()
+    }
+  }
+
+  video.likeCount = await VideoLike.countDocuments({
+    video: videoId,
+    like: 1
+  })
+
+  video.dislikeCount = await VideoLike.countDocuments({
+    video: videoId,
+    like: -1
+  })
+
+  await video.save()
+
+  res.json({
+    ...video.toJSON(),
+    isDislike
+  })
+}
+
+// 喜欢的视频列表
+exports.likeList = async (req, res) => {
+  const userId = req.user._id
+  const { pageNum, pageSize } = req.body
+  const list = await VideoLike.find({
+    user: userId,
+    like: 1
+  })
+    .skip((pageNum - 1) * pageSize)
+    .limit(pageSize)
+  const total = await VideoLike.countDocuments({
+    user: userId,
+    like: 1
+  })
+  res.json({
+    list,
+    total,
+    pageNum,
+    pageSize
   })
 }
