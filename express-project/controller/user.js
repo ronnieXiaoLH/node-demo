@@ -161,3 +161,21 @@ exports.getUser = async (req, res) => {
     })
   }
 }
+
+// 查看用户的关注列表
+exports.getSubscribe = async (req, res) => {
+  const userId = req.params.userId
+  const list = await Subscribe.find({
+    user: userId
+  }).populate('channel', '_id username avatar cover chanelDes subscribeCount')
+  res.json(list.map((item) => item.channel))
+}
+
+// 查看粉丝列表
+exports.getChannel = async (req, res) => {
+  const userId = req.user._id
+  const list = await Subscribe.find({
+    channel: userId
+  }).populate('user', '_id username avatar cover chanelDes subscribeCount')
+  res.json(list.map((item) => item.user))
+}

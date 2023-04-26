@@ -20,5 +20,7 @@ router.post(
 router.get('/subscribe/:userId', verifyToken(), userController.subscribe)
 router.get('/unsubscribe/:userId', verifyToken(), userController.unsubscribe)
 router.get('/getUser/:userId', verifyToken(false), userController.getUser)
+router.get('/getSubscribe/:userId', userController.getSubscribe)
+router.get('/getChannel/:userId', verifyToken(), userController.getChannel)
 
 module.exports = router

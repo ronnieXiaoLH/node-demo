@@ -10,7 +10,7 @@ const subscribeSchema = new mongoose.Schema({
     // 关联用户模型
     ref: 'User'
   },
-  // 用户
+  // 被关注的用户
   channel: {
     // mongodb 自动生成的 _id
     type: mongoose.ObjectId,
