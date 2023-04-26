@@ -17,5 +17,7 @@ router.post(
   upload.single('avatar'),
   userController.headimg
 )
+router.get('/subscribe/:userId', verifyToken(), userController.subscribe)
+router.get('/unsubscribe/:userId', verifyToken(), userController.unsubscribe)
 
 module.exports = router

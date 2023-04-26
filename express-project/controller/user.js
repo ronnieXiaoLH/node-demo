@@ -1,6 +1,6 @@
 const fs = require('fs')
 const { promisify } = require('util')
-const { User } = require('../model')
+const { User, Subscribe } = require('../model')
 const { createToken } = require('../utils/jwt')
 
 const rename = promisify(fs.rename)
@@ -53,5 +53,78 @@ exports.headimg = async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ error })
+  }
+}
+
+// 关注用户
+exports.subscribe = async (req, res) => {
+  // 当前登录用户
+  const userId = req.user._id
+  // 要订阅的用户
+  const channelId = req.params.userId
+  if (userId === channelId) {
+    return res.json({
+      error: '不能关注自己'
+    })
+  }
+
+  const record = await Subscribe.findOne({
+    user: userId,
+    channel: channelId
+  })
+  if (record) {
+    res.json({
+      error: '已经关注了'
+    })
+  } else {
+    await new Subscribe({
+      user: userId,
+      channel: channelId
+    }).save()
+
+    // 被关注的用户，粉丝数量+1
+    const user = await User.findOne({
+      _id: channelId
+    })
+    user.subscribeCount++
+    user.save()
+    res.json({
+      msg: '关注成功'
+    })
+  }
+}
+
+// 取消关注
+exports.unsubscribe = async (req, res) => {
+  // 当前登录用户
+  const userId = req.user._id
+  // 要取消关注的用户
+  const channelId = req.params.userId
+  if (userId === channelId) {
+    return res.json({
+      error: '不能取关自己'
+    })
+  }
+
+  const record = await Subscribe.findOne({
+    user: userId,
+    channel: channelId
+  })
+  if (!record) {
+    res.json({
+      error: '未关注'
+    })
+  } else {
+    await record.deleteOne()
+
+    // 被关注的用户，粉丝数量-1
+    const user = await User.findOne({
+      _id: channelId
+    })
+    user.subscribeCount--
+    user.save()
+    res.json({
+      msg: '取关成功'
+    })
   }
 }
