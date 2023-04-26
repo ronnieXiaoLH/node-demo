@@ -121,7 +121,3 @@ exports.delete = async (req, res) => {
     msg: '删除成功'
   })
 }
-
-exports.list = async (req, res) => {
-  res.status(200).json({})
-}
