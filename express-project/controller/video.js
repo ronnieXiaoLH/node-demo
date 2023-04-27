@@ -1,4 +1,17 @@
-const { Video, VideoComment, VideoLike, Subscribe } = require('../model')
+const {
+  Video,
+  VideoComment,
+  VideoLike,
+  Subscribe,
+  Collect
+} = require('../model')
+const { videoHotInc, videoTopHots } = require('../model/redis/hotsInc')
+
+// 视频热度计算规则：观看+1、点赞+2、评论+2、收藏+3
+const VIEW = 1,
+  LIKE = 2,
+  COMMENT = 2,
+  COLLECT = 3
 
 // 创建视频
 exports.createVideo = async (req, res) => {
@@ -64,6 +77,7 @@ exports.video = async (req, res) => {
         isSubscribe = true
       }
     }
+    await videoHotInc(videoId, VIEW)
     res.json({ ...dbBack.toJSON(), isLike, isDislike, isSubscribe })
   } catch (error) {
     res.status(500).json({ error })
@@ -91,6 +105,9 @@ exports.comment = async (req, res) => {
   })
 
   const comment = await videoCommentModel.save()
+  if (comment) {
+    await videoHotInc(videoId, COMMENT)
+  }
   video.commentCount++
   video.save()
 
@@ -173,6 +190,7 @@ exports.like = async (req, res) => {
       video: videoId
     })
     await videoLikeModel.save()
+    await videoHotInc(videoId, LIKE)
   } else {
     if (dbBack.like === 1) {
       isLike = false
@@ -180,6 +198,7 @@ exports.like = async (req, res) => {
     } else {
       dbBack.like === 1
       await dbBack.save()
+      await videoHotInc(videoId, LIKE)
     }
   }
 
@@ -298,4 +317,47 @@ exports.delete = async (req, res) => {
   res.json({
     msg: '删除成功'
   })
+}
+
+// 收藏视频
+exports.collect = async (req, res) => {
+  const { videoId } = req.params
+  const userId = req.user._id
+
+  const video = await Video.findById(videoId)
+  if (!video) {
+    return res.json({
+      error: '视频不存在'
+    })
+  }
+
+  const collect = await Collect.findOne({
+    user: userId,
+    video: videoId
+  })
+  if (collect) {
+    return res.json({
+      error: '视频已被收藏'
+    })
+  }
+
+  const dbBack = await new Collect({
+    user: userId,
+    video: videoId
+  }).save()
+  if (dbBack) {
+    await videoHotInc(videoId, COLLECT)
+  }
+  res.json(dbBack)
+}
+
+// 获取热度视频列表
+exports.getHots = async (req, res) => {
+  const { topNum = 10 } = req.params
+  try {
+    const tops = await videoTopHots(topNum)
+    res.json({ tops })
+  } catch (error) {
+    console.log(error)
+  }
 }

@@ -59,3 +59,43 @@ npx express-generator
 - 更新多条数据：db.user.updateMany({age:{$gt:10}}, {$set:{name:'monica'}})
 - 删除一条数据：db.user.deleteOne({name:'zhangsan'})
 - 删除多条数据：db.user.deleteMany({age:{$gt:10}})
+
+## redis
+
+### redis 启动
+
+在 redis 的安装目录下面，打开 cmd 终端，运行 `redis-server redis.windows.conf`
+
+### redis 密码
+
+- 设置密码：CONFIG SET requirepass '密码'，这个只是在当前服务中设置，退出后就没有了，永久设置还是要去 redis 的 conf 文件中，找到 requirepass 设置
+- 取消密码：CONFIG SET requirepass ''
+- 使用密码链接 redis-cli：redis-cli -a '密码'
+- 查看密码：CONFIG GET requirepass
+
+### redis 数据库
+
+redis 默认启动的 0 数据库，可以通过 select 选择不同的数据库，比如：select 1
+
+**redis 数据库之间的数据的隔离并不是绝对的，有些操作是全局的，比如：FLUSHALL（清空所有的数据库）**
+
+### redis 常用命令
+
+- redis-cli: 打开连接 redis 的终端
+- info: 查看服务器信息
+- keys: 查看所有的 key
+- set key value：设置数据
+- get key：获取数据
+- del key：删除数据
+- type key：查询值的类型
+
+### redis 存储的数据类型
+
+| --- | --- |
+| 类型 | 类型说明 |
+| String | 字符串，其他数据类型的基础类型 |
+| Lists | 按插入顺序排序的字符串元素的集合 |
+| Sets | 不重复且无序的字符串元素的集合 |
+| Sorted sets | 类似 Sets,但是每个字符串元素都关联到一个叫 score 浮动数值（floating number value）。里面的元素总是通过 score 进行着排序 |
+| Hashes | 由 field 和关联的 value 组成的 map |
+| ... | ... |
