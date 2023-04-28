@@ -99,3 +99,55 @@ redis 默认启动的 0 数据库，可以通过 select 选择不同的数据库
 | Sorted sets | 类似 Sets,但是每个字符串元素都关联到一个叫 score 浮动数值（floating number value）。里面的元素总是通过 score 进行着排序 |
 | Hashes | 由 field 和关联的 value 组成的 map |
 | ... | ... |
+
+## nginx
+
+### linux 安装 nginx
+
+sodo apt-get install nginx
+
+### 启动 nginx
+
+sudo netstat -tupln | grep 80
+
+### 停止 nginx
+
+nginx -s stop 或 nginx -s quit
+
+quit 是优雅停止，等所有子进程把当前的任务处理完再停止
+
+### nginx 启用新的配置文件
+
+nginx -s reload
+
+### 启用新的日志文件
+
+nginx -s reopen
+
+### 检测配置文件是否有问题
+
+nginx -t
+
+### nginx 配置文件
+
+```bash
+Main # 全局配置区，Nginx 核心功能配置
+
+events { # events 事件区，子进程核心配置
+
+}
+
+http { # http 服务器配置区
+  server { # 不同服务配置区
+    location { # location 不同请求配置区
+      # 具体配置选项
+    }
+  }
+}
+
+mail { # 邮件代理配置区
+  server { # 邮件服务配置区
+    # 具体配置选项
+  }
+}
+```
