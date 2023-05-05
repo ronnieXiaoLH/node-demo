@@ -363,35 +363,50 @@ async function aggregate() {
 
   const res = await User.aggregate([
     {
-      $group: {
-        _id: {
-          $cond: {
-            if: { $gte: ['$age', 50] },
-            then: '50~70',
-            else: {
-              $cond: {
-                if: { $and: [{ $gte: ['$age', 30] }, { $lt: ['$age', 50] }] },
-                then: '30~50',
-                else: '20~30'
+      $facet: {
+        a: [
+          {
+            $group: {
+              _id: {
+                $cond: {
+                  if: { $gte: ['$age', 50] },
+                  then: '50~70',
+                  else: {
+                    $cond: {
+                      if: {
+                        $and: [{ $gte: ['$age', 30] }, { $lt: ['$age', 50] }]
+                      },
+                      then: '30~50',
+                      else: '20~30'
+                    }
+                  }
+                }
+              },
+              count: {
+                $sum: 1
+              },
+              maxAge: {
+                $max: '$age'
+              },
+              minAge: {
+                $min: '$age'
+              },
+              averageAge: {
+                $avg: '$age'
+              },
+              totalAge: {
+                $sum: { $multiply: ['$age', 1] }
               }
             }
           }
-        },
-        count: {
-          $sum: 1
-        },
-        maxAge: {
-          $max: '$age'
-        },
-        minAge: {
-          $min: '$age'
-        },
-        averageAge: {
-          $avg: '$age'
-        },
-        totalAge: {
-          $sum: { $multiply: ['$age', 1] }
-        }
+        ],
+        b: [
+          {
+            $group: {
+              _id: '$age'
+            }
+          }
+        ]
       }
     }
   ])
