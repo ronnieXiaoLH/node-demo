@@ -1,6 +1,6 @@
 const { merge } = require('lodash')
 const mongoose = require('mongoose')
-const { main, User } = require('./model')
+const { main, User, Order, OrderItem } = require('./model')
 
 const ObjectId = mongoose.Types.ObjectId
 
@@ -178,6 +178,226 @@ async function subUpdate() {
   console.log(dbBack)
 }
 
+async function aggregate() {
+  // const res = await User.aggregate([
+  //   {
+  //     // 类似于 find 方法的查询条件
+  //     $match: { age: { $gt: 30 } }
+  //   },
+  //   // {
+  //   //   // 挑选指定的字段，类似于 find 方法的 select
+  //   //   $project: {
+  //   //     username: 1,
+  //   //     age: 1
+  //   //   }
+  //   // },
+  //   {
+  //     // 分组，按 age 不同来分组
+  //     $group: {
+  //       _id: '$age',
+  //       count: {
+  //         $sum: 1
+  //       }
+  //     }
+  //   },
+  //   {
+  //     $project: {
+  //       _id: 0,
+  //       age: '$_id',
+  //       count: '$count'
+  //     }
+  //   },
+  //   {
+  //     // 排序
+  //     $sort: {
+  //       count: -1
+  //     }
+  //   },
+  //   {
+  //     // 截取，相当于 top5
+  //     $limit: 5
+  //   }
+  //   // {
+  //   //   // 从头部截取
+  //   //   $skip: 2
+  //   // }
+  // ])
+  // console.log(res)
+
+  // const users = await User.find().limit(3)
+  // console.log(users)
+  // const orderData = [
+  //   {
+  //     order_id: '1',
+  //     total_num: 6,
+  //     total_price: 140,
+  //     user: users[0]
+  //   },
+  //   {
+  //     order_id: '2',
+  //     total_num: 3,
+  //     total_price: 40,
+  //     user: users.slice(0, 2)
+  //   },
+  //   {
+  //     order_id: '3',
+  //     total_num: 4,
+  //     total_price: 200,
+  //     user: users
+  //   }
+  // ]
+  // const orderItemData = [
+  //   {
+  //     order_id: '1',
+  //     title: '苹果',
+  //     num: 3,
+  //     price: 10
+  //   },
+  //   {
+  //     order_id: '1',
+  //     title: '香蕉',
+  //     num: 2,
+  //     price: 5
+  //   },
+  //   {
+  //     order_id: '1',
+  //     title: '榴莲',
+  //     num: 1,
+  //     price: 100
+  //   },
+  //   {
+  //     order_id: '2',
+  //     title: '辣条',
+  //     num: 2,
+  //     price: 10
+  //   },
+  //   {
+  //     order_id: '2',
+  //     title: '面包',
+  //     num: 1,
+  //     price: 20
+  //   },
+  //   {
+  //     order_id: '3',
+  //     title: '王老吉',
+  //     num: 2,
+  //     price: 60
+  //   },
+  //   {
+  //     order_id: '3',
+  //     title: '矿泉水',
+  //     num: 2,
+  //     price: 40
+  //   }
+  // ]
+  // await Order.create(orderData)
+  // await OrderItem.create(orderItemData)
+
+  const pipeLine = []
+
+  // pipeLine.push({
+  //   $group: {
+  //     _id: '$order_id',
+  //     count: {
+  //       $sum: 1
+  //     }
+  //   }
+  // })
+
+  // pipeLine.push({
+  //   $match: {
+  //     total_num: { $gt: 2 }
+  //   }
+  // })
+
+  // pipeLine.push({
+  //   $project: {
+  //     _id: 0,
+  //     order_id: 1,
+  //     total_num: 1,
+  //     total_price: 1,
+  //     // user: 1
+  //     type: {
+  //       // 条件表达式
+  //       $cond: {
+  //         // $eq 数组里面的 $表示变量，数组的内容的顺序无关
+  //         if: { $eq: ['$order_id', '1'] },
+  //         then: '水果',
+  //         else: {
+  //           $cond: {
+  //             if: { $eq: ['2', '$order_id'] },
+  //             then: '零食',
+  //             else: '饮料'
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // })
+
+  // pipeLine.push({
+  //   $sort: {
+  //     total_price: -1
+  //   }
+  // })
+
+  // pipeLine.push({
+  //   $lookup: {
+  //     // 关联哪个 collection
+  //     from: 'orderitems',
+  //     localField: 'order_id',
+  //     foreignField: 'order_id',
+  //     // 关联到信息的字段名
+  //     as: 'order_item_info'
+  //   }
+  // })
+
+  // pipeLine.push({
+  //   $unwind: {
+  //     path: '$user'
+  //   }
+  // })
+
+  // const res = await Order.aggregate(pipeLine)
+  // console.log(res)
+
+  const res = await User.aggregate([
+    {
+      $group: {
+        _id: {
+          $cond: {
+            if: { $gte: ['$age', 50] },
+            then: '50~70',
+            else: {
+              $cond: {
+                if: { $and: [{ $gte: ['$age', 30] }, { $lt: ['$age', 50] }] },
+                then: '30~50',
+                else: '20~30'
+              }
+            }
+          }
+        },
+        count: {
+          $sum: 1
+        },
+        maxAge: {
+          $max: '$age'
+        },
+        minAge: {
+          $min: '$age'
+        },
+        averageAge: {
+          $avg: '$age'
+        },
+        totalAge: {
+          $sum: { $multiply: ['$age', 1] }
+        }
+      }
+    }
+  ])
+  console.log(res)
+}
+
 main()
   .then(() => {
     console.log('mongodb 连接成功')
@@ -188,9 +408,12 @@ main()
     // 删除文档
     // del()
     // 查询文档
-    query()
+    // query()
     // 更新子文档
     // subUpdate()
+
+    // 聚合操作
+    aggregate()
   })
   .catch((err) => {
     console.log(err)

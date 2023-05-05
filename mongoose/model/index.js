@@ -20,5 +20,7 @@ async function main() {
 module.exports = {
   main,
   // 数据库中的集合是带 s 的，即 Users
-  User: mongoose.model('User', require('./user'))
+  User: mongoose.model('User', require('./user')),
+  Order: mongoose.model('Order', require('./order').orderSchema),
+  OrderItem: mongoose.model('OrderItem', require('./order').orderItemSchema)
 }
