@@ -7,7 +7,8 @@
   "scripts": {
     "server": "nodemon node/src/index.js",
     "express": "nodemon express/app.js",
-    "dev": "nodemon express-project/app.js"
+    "dev": "nodemon express-project/app.js",
+    "mongoose": "nodemon mongoose/app.js"
   },
   "repository": {
     "type": "git",
