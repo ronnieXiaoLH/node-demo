@@ -110,6 +110,90 @@ npx express-generator
 
 - 数字索引，要比字符串索引快的
 
+### mongodb 的复制集
+
+MongoDB复制集（Replica Set）是一组 MongoDB 服务器的集合，其中包括一个主节点（Primary）和多个从节点（Secondary），用于提供数据冗余和高可用性
+
+#### 复制集的优点
+
+1. 高可用性：当主节点不可用时，复制集会自动将一个从节点选举为新的主节点，并保持服务的可用性。
+2. 数据冗余：数据在多个节点之间进行复制，以确保数据在多个节点之间的备份。
+3. 扩展性：可以添加更多的从节点来扩展读取操作的容量，并在需要时添加更多的主节点以处理更多的写操作。
+4. 数据备份：可以利用从节点来创建数据备份，以保护数据免受故障和数据丢失的影响。
+
+#### 复制集的节点
+
+- 主节点负责处理所有的写入请求
+- 主节点（默认）和从节点都可以处理读取请求
+- 从节点从主节点（或者符合条件的从节点）处复制数据
+- 每个节点都会向其他节点发送心跳请求，每隔 2 秒发送一次，超过 10 秒则请求超时
+- 复制集最多可以有 50 个节点
+
+#### 复制集选举
+
+- 候选节点发起选举，每个节点投票给比自己更同步的节点
+- 得到超过半数选票的候选节点会当选主节点
+- 复制集中最多可以有 7 个投票节点
+- 复制集节点的数量最少应该是 3 个，节点个数最好是奇数
+
+#### 触发选举的事件
+
+- 主节点与从节点之间的心跳请求超时
+- 复制集初始化
+- 新节点加入复制集
+
+#### 投票机
+
+- 没有数据
+- 可以投票
+- 不能成为主节点
+
+#### windows创建复制集
+
+1. 启动三个 mongodb 服务
+
+```bash
+# 创建三个 db 文件夹 db1, db2, db3，每个文件夹里新增一个 mongod.log 和 mongod.conf 文件
+# db1 的 mongd.conf 文件的内容
+dbpath=D:\mongodb\data\db1
+logpath=D:\mongodb\data\db1\mongod.log
+journal=true
+port=28017
+replSet=rs0
+# db2 的 mongd.conf 文件的内容
+dbpath=D:\mongodb\data\db2
+logpath=D:\mongodb\data\db2\mongod.log
+journal=true
+port=28018
+replSet=rs0
+# db3 的 mongd.conf 文件的内容
+dbpath=D:\mongodb\data\db3
+logpath=D:\mongodb\data\db3\mongod.log
+journal=true
+port=28018
+replSet=rs0
+
+# 打开三个 cmd 终端，分别执行 mongod -f D:\mongodb\data\db1\mongod.conf,mongod -f D:\mongodb\data\db2\mongod.conf,mongod -f D:\mongodb\data\db3\mongod.conf
+```
+
+2. 连接主节点
+
+```bash
+mongosh "mongodb://localhost:28017"
+```
+
+3. 添加从节点
+
+```bash
+rs.initiate()
+rs.conf()
+rs.add("localhost:28018")
+rs.add("localhost:28019")
+rs.status()
+```
+
+
+
 ## redis
 
 ### redis 启动
