@@ -272,11 +272,81 @@ events { # events 事件区，子进程核心配置
 }
 
 http { # http 服务器配置区
-  server { # 不同服务配置区
-    location { # location 不同请求配置区
-      # 具体配置选项
+	# limit_conn_zone $binary_remote_addr zone=limit_addr:10m; # 根据 IP 做限制,10M 共享内存
+    # limit_req_zone $binary_remote_addr zone=limit_req:15m rate=6r/m; # 根据 IP 做限制,15M 共享内存，每分钟处理 6 个请求
+	server {
+        listen 80;
+        # server_name name1 name2 name3
+        # 支持通配符和正则表达式(以~开头)，优先级 精准匹配 > 左侧通配符匹配 > 右侧通配符匹配 > 正则表达式匹配
+        # server_name www.nginx.com *.nginx.org www.nginx.* ~^www\.imooc\..*$
+        server_name www.nginx-test.com *.nginx-test.com;
+        # location 匹配规则 1. 精准匹配(=) 2. 正则匹配区分大小写(~) 3. 正则匹配不区分大小写(~*) 4. 匹配到即停止搜索(^~) 5. 不到任何符号；匹配规则的优先级 1 > 4 > 2 > 3 > 5
+        # location /test 表示如果没有找到 test 目录，会尝试找 test 文件；/test/ 则不会尝试找 test 文件
+        location / {
+            root html/nginx-test; # html 文件夹
+            index index.html index.htm;
+
+            # 限制请求数的配置
+            # limit_conn_status 503; # 限制请求数发生时，返回给客户端的状态码
+            # limit_conn_log_level warn; # 限制请求数发生时的日志级别
+            # limit_conn limit_addr 2; # 限制的请求数个数
+            # limit_rate 50; # 每个请求响应的结果的传输速率
+
+            # limit_req_status 504; # 限速发生时，返回给客户端的状态码
+            # limit_req_log_level error; # 限速数发生时的日志级别
+            # limit_req zone=limit_req;
+            # # limit_req zone=limit_req brust=7 nodelay;
+
+            # allow 172.16.204.217; # allow 允许访问
+            # deny all; # deny 不允许访问，不允许访问的 IP 访问返回 403
+        }
+        location /test {
+            alias D:/my-code/node-project/node-demo/node/; # alias 是绝对路径，并且末尾必须带 /
+            index index.html index.htm;
+        }
+        location /img {
+            root html/nginx-test;
+        }
+        location /abc {
+            stub_status; # 查看 nginx 的运行状态
+        }
     }
-  }
+    
+    server {
+      listen 8000;
+      root html;
+
+      location / {
+        # return 200 "return 200 HTTP Code";
+        # return 302 /bbs; # 重定向到 /bbs 
+        return http://localhost:8000/bbs; # 不带状态码，需要返回一个绝对地址
+      }
+
+      location /bbs {
+        index index.html index.htm;
+      }
+
+      location /search {
+        rewrite ^/(.*) https://www.baidu.com permanent; # permanent 301, redirect 302
+        return 200 "return 200 HTTP Code";
+      }
+
+      location /images {
+        rewrite /images/(.*) http://www.nginx-test.com/img/$1 break; # break 表示不会继续再重定向到其它的地址
+      }
+
+      location /if {
+        # if ($remote_addr = "172.16.204.217") {
+        #   return 302 /bbs;
+        # }
+        if ($uri = "/if/a") {
+          return 302 /bbs;
+        }
+        if ($uri != "/if/a") {
+          return https://www.baidu.com;
+        }
+      }
+    }
 }
 
 mail { # 邮件代理配置区
